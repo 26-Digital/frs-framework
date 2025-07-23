@@ -165,22 +165,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       },
       {
         title: "Documents",
-        url: "/documents",
+        url: "/dashboard/documents",
         icon: IconFileText,
       },
       {
         title: "Compliance Checklist",
-        url: "/checklist",
+        url: "/dashboard/checklist",
         icon: IconChecklist,
       },
       {
         title: "Authorities",
-        url: "/authorities",
+        url: "/dashboard/authorities",
         icon: IconBuilding,
       },
       {
         title: "Analytics",
-        url: "/analytics",
+        url: "/dashboard/analytics",
         icon: IconChartBar,
       },
     ]
