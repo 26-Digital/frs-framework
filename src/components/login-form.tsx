@@ -61,88 +61,110 @@ export function LoginForm({
   const onSubmit = async (data: SignInInput) => {
     setIsLoading(true)
 
-    try {
-      // Step 1: Authenticate with external service
-      const authResponse = await fetch(AUTH_API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: data.email,
-          password: data.password,
-        }),
-      })
+  try {
+    // Step 1: Authenticate with external service
+    const authResponse = await fetch(AUTH_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: data.email,
+        password: data.password,
+      }),
+    })
 
-      if (!authResponse.ok) {
-        const errorData = await authResponse.json().catch(() => null)
-        throw new Error(errorData?.message || "Invalid credentials")
+    if (!authResponse.ok) {
+      const errorData = await authResponse.json().catch(() => null)
+      throw new Error(errorData?.message || "Invalid credentials")
+    }
+
+    const authData: AuthResponse = await authResponse.json()
+
+    // Step 2: Decode the token to get user info
+    const decodeResponse = await fetch(DECODE_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        token: authData.access,
+      }),
+    })
+
+    if (!decodeResponse.ok) {
+      throw new Error("Failed to decode token")
+    }
+
+    const decodedData: DecodedTokenResponse = await decodeResponse.json()
+
+    // Step 3: Create session in your database
+    const sessionResponse = await fetch('/api/auth/create-session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        decodedPayload: decodedData.payload,
+        accessToken: authData.access,
+        refreshToken: authData.refresh,
+        clientInfo: getClientInfo(),
+      }),
+    })
+
+    if (!sessionResponse.ok) {
+      throw new Error("Failed to create session")
+    }
+
+    const sessionData = await sessionResponse.json()
+
+    // Step 4: Store user data in sessionStorage for immediate client access
+    const userData = {
+      id: sessionData.user.id,
+      email: sessionData.user.email,
+      name: sessionData.user.name,
+      role: sessionData.user.role,
+      externalUserId: decodedData.payload.user_id.toString(),
+      expires: sessionData.expires,
+      sessionToken: sessionData.sessionToken,
+      profile: {
+        username: decodedData.payload.profile.username,
+        first_name: decodedData.payload.profile.first_name,
+        last_name: decodedData.payload.profile.last_name,
+        email: decodedData.payload.profile.email
       }
+    }
 
-      const authData: AuthResponse = await authResponse.json()
+    // Store in sessionStorage for immediate access
+    sessionStorage.setItem('session_token', sessionData.sessionToken)
+    sessionStorage.setItem('access_token', authData.access)
+    sessionStorage.setItem('refresh_token', authData.refresh)
+    sessionStorage.setItem('user_data', JSON.stringify(userData))
 
-      // Step 2: Decode the token to get user info
-      const decodeResponse = await fetch(DECODE_API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          token: authData.access,
-        }),
-      })
+    // Step 5: Also set user data in cookies for server-side access
+    const cookieOptions = {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax' as const
+    }
 
-      if (!decodeResponse.ok) {
-        throw new Error("Failed to decode token")
-      }
+    // Set user data cookie (not httpOnly so we can access it client-side)
+    document.cookie = `user_data=${encodeURIComponent(JSON.stringify(userData))}; path=/; max-age=${cookieOptions.maxAge}; ${cookieOptions.secure ? 'secure;' : ''} samesite=${cookieOptions.sameSite}`
 
-      const decodedData: DecodedTokenResponse = await decodeResponse.json()
+    toast("Login Successful", {
+      description: `Welcome back, ${decodedData.payload.profile.first_name}!`,
+    })
 
-      // Step 3: Create session in your database
-      const sessionResponse = await fetch('/api/auth/create-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          decodedPayload: decodedData.payload,
-          accessToken: authData.access,
-          refreshToken: authData.refresh,
-          clientInfo: getClientInfo(),
-        }),
-      })
-
-      if (!sessionResponse.ok) {
-        throw new Error("Failed to create session")
-      }
-
-      const sessionData = await sessionResponse.json()
-
-      // Step 4: Store session info in sessionStorage (not localStorage for security)
-      sessionStorage.setItem('session_token', sessionData.sessionToken)
-      sessionStorage.setItem('access_token', authData.access)
-      sessionStorage.setItem('refresh_token', authData.refresh)
-      sessionStorage.setItem('user_data', JSON.stringify({
-        id: sessionData.user.id,
-        email: sessionData.user.email,
-        name: sessionData.user.name,
-        role: sessionData.user.role,
-        expires: sessionData.expires,
-      }))
-
-      toast("Login Successful", {
-        description: `Welcome back, ${decodedData.payload.profile.first_name}!`,
-      })
-
-      // Redirect based on user role
-      const userRoles = decodedData.payload.roles || []
-      if (userRoles.includes("admin") || sessionData.user.role === "ADMIN") {
-        router.push("/admin/dashboard")
-      } else {
-        router.push("/dashboard")
-      }
-      
-      router.refresh()
+    // Redirect based on user role
+    const userRoles = decodedData.payload.roles || []
+    if (userRoles.includes("admin") || sessionData.user.role === "ADMIN") {
+      router.push("/admin")
+    } else {
+      router.push("/dashboard")
+    }
+    
+    router.refresh()
 
     } catch (error) {
       console.error("Login error:", error)

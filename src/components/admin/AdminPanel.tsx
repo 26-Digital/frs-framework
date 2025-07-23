@@ -11,26 +11,195 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { DocumentForm } from './DocumentForm'
-import { RequirementForm } from './RequirementForm'
-import type { 
-  DocumentWithDetails, 
-  AuthorityOption, 
-  AdminStats,
-  AdminApiResponse 
-} from '@/types/admin'
+
+// Hardcoded data
+const hardcodedDocuments = [
+  {
+    id: '1',
+    title: 'Banking Act 2020',
+    description: 'The primary legislation governing banking operations in Botswana',
+    type: 'ACT',
+    category: 'banking',
+    subcategory: 'primary-legislation',
+    tags: ['banking', 'legislation', 'BOB', 'prudential'],
+    authority: {
+      id: 'bob',
+      name: 'Bank of Botswana',
+      code: 'BOB'
+    },
+    version: '1.0',
+    effectiveDate: '2020-01-01',
+    fileUrl: '/documents/banking-act-2020.pdf',
+    requirements: [
+      { id: '1', title: 'Banking License Application' },
+      { id: '2', title: 'Capital Adequacy Compliance' }
+    ],
+    updatedAt: '2024-01-15T10:30:00Z',
+    createdAt: '2020-01-01T00:00:00Z'
+  },
+  {
+    id: '2',
+    title: 'Anti-Money Laundering Guidelines 2023',
+    description: 'Comprehensive guidelines for preventing money laundering and terrorist financing',
+    type: 'GUIDELINE',
+    category: 'aml-cft',
+    subcategory: 'prevention',
+    tags: ['AML', 'CTF', 'compliance', 'FIA', 'reporting'],
+    authority: {
+      id: 'fia',
+      name: 'Financial Intelligence Agency',
+      code: 'FIA'
+    },
+    version: '2.1',
+    effectiveDate: '2023-06-01',
+    fileUrl: '/documents/aml-guidelines-2023.pdf',
+    requirements: [
+      { id: '3', title: 'AML/CFT Compliance Program' },
+      { id: '4', title: 'Suspicious Transaction Reporting' }
+    ],
+    updatedAt: '2024-02-10T14:20:00Z',
+    createdAt: '2023-06-01T00:00:00Z'
+  },
+  {
+    id: '3',
+    title: 'Insurance Industry Regulations 2022',
+    description: 'Regulations governing the insurance industry in Botswana',
+    type: 'REGULATION',
+    category: 'insurance',
+    subcategory: 'industry-regulation',
+    tags: ['insurance', 'regulation', 'NBFIRA', 'solvency'],
+    authority: {
+      id: 'nbfira',
+      name: 'Non-Bank Financial Institutions Regulatory Authority',
+      code: 'NBFIRA'
+    },
+    version: '1.3',
+    effectiveDate: '2022-04-01',
+    fileUrl: '/documents/insurance-regulations-2022.pdf',
+    requirements: [
+      { id: '5', title: 'Insurance License Application' },
+      { id: '6', title: 'Solvency Requirements' }
+    ],
+    updatedAt: '2024-01-20T09:15:00Z',
+    createdAt: '2022-04-01T00:00:00Z'
+  },
+  {
+    id: '4',
+    title: 'Bank Capital Requirements Directive 2024',
+    description: 'Updated capital adequacy requirements for banks',
+    type: 'DIRECTIVE',
+    category: 'prudential',
+    subcategory: 'capital-adequacy',
+    tags: ['capital', 'prudential', 'BOB', 'basel'],
+    authority: {
+      id: 'bob',
+      name: 'Bank of Botswana',
+      code: 'BOB'
+    },
+    version: '1.0',
+    effectiveDate: '2024-01-01',
+    fileUrl: '/documents/capital-requirements-2024.pdf',
+    requirements: [
+      { id: '7', title: 'Capital Adequacy Assessment' },
+      { id: '8', title: 'Risk Management Framework' }
+    ],
+    updatedAt: '2024-03-05T16:45:00Z',
+    createdAt: '2024-01-01T00:00:00Z'
+  },
+  {
+    id: '5',
+    title: 'Customer Due Diligence Form',
+    description: 'Standard form for customer identification and verification',
+    type: 'FORM',
+    category: 'aml-cft',
+    subcategory: 'customer-identification',
+    tags: ['CDD', 'KYC', 'form', 'FIA'],
+    authority: {
+      id: 'fia',
+      name: 'Financial Intelligence Agency',
+      code: 'FIA'
+    },
+    version: '3.2',
+    effectiveDate: '2023-09-01',
+    fileUrl: '/documents/cdd-form-2023.pdf',
+    requirements: [
+      { id: '9', title: 'Customer Identification Process' }
+    ],
+    updatedAt: '2024-02-28T11:30:00Z',
+    createdAt: '2023-09-01T00:00:00Z'
+  },
+  {
+    id: '6',
+    title: 'Pension Fund Circular 2024/01',
+    description: 'Guidance on pension fund investment limits and restrictions',
+    type: 'CIRCULAR',
+    category: 'pension',
+    subcategory: 'investment-guidelines',
+    tags: ['pension', 'investment', 'NBFIRA', 'limits'],
+    authority: {
+      id: 'nbfira',
+      name: 'Non-Bank Financial Institutions Regulatory Authority',
+      code: 'NBFIRA'
+    },
+    version: '1.0',
+    effectiveDate: '2024-02-01',
+    fileUrl: '/documents/pension-circular-2024-01.pdf',
+    requirements: [
+      { id: '10', title: 'Investment Portfolio Compliance' }
+    ],
+    updatedAt: '2024-02-01T08:00:00Z',
+    createdAt: '2024-02-01T08:00:00Z'
+  }
+]
+
+const hardcodedAuthorities = [
+  {
+    id: 'bob',
+    name: 'Bank of Botswana',
+    code: 'BOB'
+  },
+  {
+    id: 'nbfira',
+    name: 'Non-Bank Financial Institutions Regulatory Authority',
+    code: 'NBFIRA'
+  },
+  {
+    id: 'fia',
+    name: 'Financial Intelligence Agency',
+    code: 'FIA'
+  }
+]
+
+const hardcodedStats = {
+  totalDocuments: hardcodedDocuments.length,
+  totalRequirements: hardcodedDocuments.reduce((sum, doc) => sum + doc.requirements.length, 0),
+  recentUploads: 3,
+  documentsByType: [
+    { type: 'ACT', count: 1 },
+    { type: 'REGULATION', count: 1 },
+    { type: 'GUIDELINE', count: 1 },
+    { type: 'DIRECTIVE', count: 1 },
+    { type: 'FORM', count: 1 },
+    { type: 'CIRCULAR', count: 1 }
+  ],
+  documentsByAuthority: [
+    { authority: 'Bank of Botswana', count: 2 },
+    { authority: 'NBFIRA', count: 2 },
+    { authority: 'Financial Intelligence Agency', count: 2 }
+  ]
+}
 
 export default function AdminPanel() {
-  const [documents, setDocuments] = useState<DocumentWithDetails[]>([])
-  const [authorities, setAuthorities] = useState<AuthorityOption[]>([])
-  const [stats, setStats] = useState<AdminStats | null>(null)
+  const [documents, setDocuments] = useState(hardcodedDocuments)
+  const [authorities, setAuthorities] = useState(hardcodedAuthorities)
+  const [stats, setStats] = useState(hardcodedStats)
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedAuthority, setSelectedAuthority] = useState<string>('all')
   const [selectedType, setSelectedType] = useState<string>('all')
   const [showDocumentForm, setShowDocumentForm] = useState(false)
   const [showRequirementForm, setShowRequirementForm] = useState(false)
-  const [editingDocument, setEditingDocument] = useState<DocumentWithDetails | null>(null)
+  const [editingDocument, setEditingDocument] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
 
   const documentTypes = [
@@ -38,59 +207,32 @@ export default function AdminPanel() {
   ]
 
   useEffect(() => {
-    fetchData()
-  }, [])
-
-  const fetchData = async () => {
-    try {
-      setLoading(true)
-      const [documentsRes, authoritiesRes, statsRes] = await Promise.all([
-        fetch('/api/admin/documents'),
-        fetch('/api/admin/authorities'),
-        fetch('/api/admin/stats')
-      ])
-
-      if (!documentsRes.ok || !authoritiesRes.ok || !statsRes.ok) {
-        throw new Error('Failed to fetch admin data')
-      }
-
-      const documentsData: AdminApiResponse<DocumentWithDetails[]> = await documentsRes.json()
-      const authoritiesData: AdminApiResponse<AuthorityOption[]> = await authoritiesRes.json()
-      const statsData: AdminApiResponse<AdminStats> = await statsRes.json()
-
-      if (documentsData.success && documentsData.data) {
-        setDocuments(documentsData.data)
-      }
-      if (authoritiesData.success && authoritiesData.data) {
-        setAuthorities(authoritiesData.data)
-      }
-      if (statsData.success && statsData.data) {
-        setStats(statsData.data)
-      }
-    } catch (err) {
-      console.error('Failed to fetch admin data:', err)
-      setError('Failed to load admin data')
-    } finally {
+    // Simulate loading
+    const timer = setTimeout(() => {
       setLoading(false)
-    }
-  }
+    }, 1000)
+
+    return () => clearTimeout(timer)
+  }, [])
 
   const handleDeleteDocument = async (id: string) => {
     if (!confirm('Are you sure you want to delete this document?')) return
 
     try {
-      const response = await fetch(`/api/admin/documents/${id}`, {
-        method: 'DELETE'
-      })
-
-      const result: AdminApiResponse = await response.json()
-
-      if (result.success) {
-        setDocuments(docs => docs.filter(doc => doc.id !== id))
-        setError(null)
-      } else {
-        setError(result.message || 'Failed to delete document')
-      }
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      setDocuments(docs => docs.filter(doc => doc.id !== id))
+      setError(null)
+      
+      // Update stats
+      const newDocuments = documents.filter(doc => doc.id !== id)
+      setStats(prevStats => ({
+        ...prevStats,
+        totalDocuments: newDocuments.length,
+        totalRequirements: newDocuments.reduce((sum, doc) => sum + doc.requirements.length, 0)
+      }))
+      
     } catch (err) {
       console.error('Delete failed:', err)
       setError('Failed to delete document')
@@ -121,6 +263,49 @@ export default function AdminPanel() {
     }
     return colors[type] || 'bg-gray-100 text-gray-800'
   }
+
+  // Mock form components
+  const DocumentForm = ({ authorities, onSuccess, onCancel }: any) => (
+    <div className="p-4 space-y-4">
+                    <DocumentForm
+                authorities={authorities}
+                onSuccess={() => {
+                  setShowDocumentForm(false)
+                  //fetchData()
+                }}
+                onCancel={() => setShowDocumentForm(false)}
+              />
+      <div className="flex gap-2">
+        <Button onClick={() => onSuccess()} className="w-full">
+          Save Document
+        </Button>
+        <Button variant="outline" onClick={() => onCancel()} className="w-full">
+          Cancel
+        </Button>
+      </div>
+    </div>
+  )
+
+  const RequirementForm = ({ documents, onSuccess, onCancel }: any) => (
+    <div className="p-4 space-y-4">
+      <RequirementForm
+        documents={documents}
+        onSuccess={() => {
+          setShowRequirementForm(false)
+          // fetchData()
+        }}
+        onCancel={() => setShowRequirementForm(false)}
+      />
+      <div className="flex gap-2">
+        <Button onClick={() => onSuccess()} className="w-full">
+          Save Requirement
+        </Button>
+        <Button variant="outline" onClick={() => onCancel()} className="w-full">
+          Cancel
+        </Button>
+      </div>
+    </div>
+  )
 
   if (loading) {
     return (
@@ -157,7 +342,7 @@ export default function AdminPanel() {
                 authorities={authorities}
                 onSuccess={() => {
                   setShowDocumentForm(false)
-                  fetchData()
+                  setError(null)
                 }}
                 onCancel={() => setShowDocumentForm(false)}
               />
@@ -182,7 +367,7 @@ export default function AdminPanel() {
                 documents={documents}
                 onSuccess={() => {
                   setShowRequirementForm(false)
-                  fetchData()
+                  setError(null)
                 }}
                 onCancel={() => setShowRequirementForm(false)}
               />
@@ -199,50 +384,48 @@ export default function AdminPanel() {
       )}
 
       {/* Stats Cards */}
-      {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Documents</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalDocuments}</div>
-            </CardContent>
-          </Card>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Documents</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalDocuments}</div>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Requirements</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalRequirements}</div>
-            </CardContent>
-          </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Requirements</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalRequirements}</div>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Recent Uploads</CardTitle>
-              <Upload className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.recentUploads}</div>
-              <p className="text-xs text-muted-foreground">Last 7 days</p>
-            </CardContent>
-          </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Recent Uploads</CardTitle>
+            <Upload className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.recentUploads}</div>
+            <p className="text-xs text-muted-foreground">Last 7 days</p>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Authorities</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{authorities.length}</div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Authorities</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{authorities.length}</div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Main Content */}
       <Tabs defaultValue="documents" className="space-y-4">
@@ -421,7 +604,16 @@ export default function AdminPanel() {
               <CardDescription>Manage business compliance requirements</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-500">Requirements management interface would go here</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {hardcodedDocuments.flatMap(doc => doc.requirements).map(req => (
+                  <Card key={req.id} className="p-4">
+                    <h4 className="font-medium mb-2">{req.title}</h4>
+                    <Badge variant="outline" className="text-xs">
+                      Active
+                    </Badge>
+                  </Card>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -433,7 +625,7 @@ export default function AdminPanel() {
                 <CardTitle>Documents by Type</CardTitle>
               </CardHeader>
               <CardContent>
-                {stats?.documentsByType.map(item => (
+                {stats.documentsByType.map(item => (
                   <div key={item.type} className="flex justify-between items-center py-2">
                     <Badge className={getDocumentTypeColor(item.type)}>
                       {item.type}
@@ -449,7 +641,7 @@ export default function AdminPanel() {
                 <CardTitle>Documents by Authority</CardTitle>
               </CardHeader>
               <CardContent>
-                {stats?.documentsByAuthority.map(item => (
+                {stats.documentsByAuthority.map(item => (
                   <div key={item.authority} className="flex justify-between items-center py-2">
                     <span className="text-sm font-medium">{item.authority}</span>
                     <Badge variant="outline">{item.count}</Badge>
