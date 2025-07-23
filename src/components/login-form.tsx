@@ -288,7 +288,14 @@ export function LoginForm({
         </Button> */}
       </div>
 
-      <div className="text-center text-sm">
+                <div className="text-center text-sm">
+            Don't have an account?{" "}
+            <a href="/auth/signup" className="underline underline-offset-4 hover:text-primary">
+              Sign up
+            </a>
+          </div>
+
+      {/* <div className="text-center text-sm">
         <div className="text-muted-foreground mb-2">
           Demo accounts for testing:
         </div>
@@ -296,7 +303,7 @@ export function LoginForm({
           <div>Demo: john_doe / SecureP@ssword123</div>
           <div>Check API documentation for other test accounts</div>
         </div>
-      </div>
+      </div> */}
 
       <div className="text-center text-sm">
         Staff only access.{" "}
