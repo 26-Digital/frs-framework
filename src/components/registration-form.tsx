@@ -33,7 +33,7 @@ import {
 import { toast } from "sonner"
 
 // Registration API configuration
-const REGISTER_API_URL = "http://74.208.205.44:8019/api/auth_microservice/register/"
+const REGISTER_API_URL = "https://twosixdigitalbw.com/v1/api/auth_microservice/register/"
 
 interface RegistrationResponse {
   message: string
