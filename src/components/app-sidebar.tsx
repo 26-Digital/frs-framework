@@ -17,7 +17,7 @@ import {
   IconCalendar,
   IconBell,
   IconMessage,
-  IconUsersGroup,
+  IconUsersGroup
 } from "@tabler/icons-react"
 
 import { NavDocuments } from "@/components/nav-documents"
@@ -161,7 +161,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {
         title: "Chat",
         url: "/dashboard/chat",
-        icon: IconDashboard,
+        icon: IconMessage,
       },
       {
         title: "Documents",

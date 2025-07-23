@@ -299,7 +299,7 @@ Feel free to ask about banking, insurance, AML/CFT compliance, or any other regu
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <div className="container mx-auto p-6 max-w-7xl">
       {/* Header */}
       <div className="text-center mb-6">
         <div className="flex items-center justify-center gap-3 mb-4">
