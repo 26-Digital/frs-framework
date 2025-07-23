@@ -13,8 +13,8 @@ import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
 // Auth API configuration
-const AUTH_API_URL = "http://74.208.205.44:8019/api/auth_microservice/login/"
-const DECODE_API_URL = "http://74.208.205.44:8019/api/auth_microservice/decode-token/"
+const AUTH_API_URL = "https://twosixdigitalbw.com/v1/api/auth_microservice/login/"
+const DECODE_API_URL = "https://twosixdigitalbw.com/v1/api/auth_microservice/decode-token/"
 
 interface AuthResponse {
   access: string

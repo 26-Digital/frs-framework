@@ -34,8 +34,8 @@ import {
 
 const data = {
   user: {
-    name: "John Doe",
-    email: "john.doe@standardbank.co.bw",
+    name: "Masego Seretse",
+    email: "masego.seretse@standardbank.co.bw",
     avatar: "/avatars/user.jpg",
   },
   navMain: [
